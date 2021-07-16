@@ -1,0 +1,45 @@
+name: Dump
+
+on:
+  workflow_dispatch:
+    paths-ignore:
+      - '*.md'
+    branches: [ main ]
+    inputs:
+      target_url:
+        required: true
+        description: 'Target URL (Required)'
+
+jobs:
+  dump:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: set-git-identity
+        run: |
+          git config --global user.name "${{ secrets.GIT_IDENTITY_USER_NAME }}"
+          git config --global user.email "${{ secrets.GIT_IDENTITY_USER_EMAIL }}"
+      - name: install-required-py3-pkgs
+        run: |
+          sudo python3 -m pip install wheel setuptools
+      - name: clone-dumper
+        run: |
+          git clone -b main --depth=1 --single-branch https://github.com/DroidDumps/phoenix_firmware_dumper
+          sudo chmod -R 777 phoenix_firmware_dumper
+      - name: write-dumper-cfgs
+        run: |
+          cd phoenix_firmware_dumper
+          echo "XTC-Droid-Port-Team" >> ".github_orgname"
+          echo "${{ secrets.GH_TOKEN }}" >> ".github_token"
+          echo "@${{ secrets.TG_CHANNEL }}" >> ".tg_chat"
+          echo "${{ secrets.TG_TOKEN }}" >> ".tg_token"
+      - name: setup-dumper
+        run: |
+          cd phoenix_firmware_dumper
+          sudo bash setup.sh
+      - name: dump
+        run: |
+          cd phoenix_firmware_dumper
+          sudo bash dumper.sh ${{ github.event.inputs.target_url }}
