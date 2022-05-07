@@ -31,7 +31,7 @@ jobs:
       - name: write-dumper-cfgs
         run: |
           cd phoenix_firmware_dumper
-          echo "XTC-Droid-Port-Team" >> ".github_orgname"
+          echo "eun-Dumpfest" >> ".github_orgname"
           echo "${{ secrets.GH_TOKEN }}" >> ".github_token"
           echo "@${{ secrets.TG_CHANNEL }}" >> ".tg_chat"
           echo "${{ secrets.TG_TOKEN }}" >> ".tg_token"
